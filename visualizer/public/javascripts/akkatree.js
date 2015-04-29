@@ -8,13 +8,22 @@
 
     var id = 1;
 
+    function findElementInArray(array, elem) {
+        var result = $.grep(array, function(e) { return e.name == elem; })
+        if(result.length == 1) {
+            return result[0]
+        } else {
+            return undefined
+        }
+    }
+
     function insert(path, parent, actorpath, level) {
       if (path.length == 0) { return; }
       else {
         var elem = path.shift();
         var node;
         if (parent.children) {
-          node = parent.children.find(function(e) { return e.name == elem; });
+          node = findElementInArray(parent.children, elem);
         }
         if (!node) {
           node = {"name" : elem, "size": 1, "id": id++, "level" : level};
@@ -37,12 +46,12 @@
       while (path.length > 1) {
         var elem = path.shift();
         if (parent_ && parent_.children) {
-          parent_ = parent_.children.find(function(e) { return e.name == elem; });
+          parent_ = findElementInArray(parent_.children, elem);
         }
       }
 
       if (parent_ && parent_.children) {
-        var elem = parent_.children.find(function(e) { return e.name == path[0]; });
+        var elem = findElementInArray(parent_.children, path[0]);
         if (elem) {
             var index = parent_.children.indexOf(elem);
             if (index > -1) {
@@ -119,7 +128,7 @@ function update() {
       .attr("cy", function(d) { return d.y; })
       .attr("r", function(d) { return Math.sqrt((d.size + 1) * 100); })
       .style("fill", color)
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      //.attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .on("click", click)
       .call(force.drag);
 
