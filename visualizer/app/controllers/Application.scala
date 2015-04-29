@@ -11,6 +11,7 @@ import play.api.mvc._
 
 object Application extends Controller {
 
+  //TODO: Enable Multicasting so we can have many clients
   val serverSocket = new DatagramSocket(9003)
   def index = Action {
     Ok(views.html.index())
@@ -21,18 +22,14 @@ object Application extends Controller {
   }
 
   private def userEvents(): Enumerator[String] = {
-    println(">>>>>>>> get user events")
     import scala.concurrent.ExecutionContext.Implicits._
+    //TODO: Use akka.io for udp. This is blocking right now
     Enumerator.repeatM(
       Future {
         val receiveData = new Array[Byte](2048);
         val receivePacket = new DatagramPacket(receiveData, receiveData.length);
         serverSocket.receive(receivePacket);
-        val jsonEvent = new String(receivePacket.getData, 0, receivePacket.getLength)
-//        val x = play.api.libs.json.Json.parse(receivePacket.getData)
-//        println(x)
-        println(jsonEvent)
-        jsonEvent
+        new String(receivePacket.getData, 0, receivePacket.getLength)
     }).through(Enumeratee.filter(s => s.contains("user")))
   }
 

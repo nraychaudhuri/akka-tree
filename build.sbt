@@ -21,3 +21,6 @@ lazy val akkaTreeClient = project.in(file("example"))
 lazy val akkaTreeVisualizer = project.in(file("visualizer"))
                                 .settings(commonSettings:_*).enablePlugins(PlayScala)
 
+
+
+lazy val root = project.in(file(".")).aggregate(akkaTreeAspectJ, akkaTreeClient, akkaTreeVisualizer)
