@@ -53,8 +53,7 @@ $(document).ready(function(){
     }
 
     function akkatree_onmessage(msg) {
-        document.getElementById("log").innerHTML = JSON.stringify(msg);
-
+        showDialogInfo(msg)
         var path = msg.actorpath.replace(/akka:\/\//, msg.host + "/").split("/");
         if (msg.event.type == "started") {
             insert(path, root, msg.actorpath, 0);
@@ -62,6 +61,12 @@ $(document).ready(function(){
             remove(path, root);
         }
         update();
+    }
+
+    function showDialogInfo(msg) {
+        $("#dialog-path").html("<h3>Path</h3>" + msg.actorpath);
+        $("#dialog-host").html("<h3>Host</h3>" + msg.host);
+        $("#dialog-event").html("<h3>Event</h3>" + msg.event.type);
     }
 
     function update() {
@@ -160,11 +165,12 @@ $(document).ready(function(){
         var root = {"name": "akka-tree", "size": 0, "id" : 0, "children" : [], "actorpath" : "Root" };
         root.fixed = true;
         root.x = w / 2;
-        root.y = h / 2 - 80;
+        root.y = h / 2;
         return root
     }
 
-    var w = 1200, h = 1200;
+    var w = 0.8 * window.innerWidth;
+    var h = window.innerHeight;
 
     var node, link;
     var id = 1;
@@ -174,7 +180,7 @@ $(document).ready(function(){
         .on("tick", tick)
         .charge(function(d) { return -500; })
         .linkDistance(function(d) { return 50; })
-        .size([w, h - 160]);
+        .size([w - 100, h - 100]);
 
     var vis = d3.select("#canvas").append("svg:svg")
         .attr("width", w)

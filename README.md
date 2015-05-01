@@ -12,6 +12,7 @@ How to run
   
 - Start the visualizer project
   ```export SBT_OPTS="-Djava.net.preferIPv4Stack=true"``` (Required for UDP multicast)
+  
   ```sbt "project akkaTreeVisualizer" run```
   
 - Point your browser to ```http://localhost:9000```

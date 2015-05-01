@@ -15,8 +15,6 @@ import java.util.Optional;
 @Aspect
 public class MonitorAspect {
 
-    private Integer threshold = 10;
-
     @AfterReturning(pointcut = "execution (* akka.actor.ActorRefFactory.actorOf(..))",
             returning = "ref", argNames = "ref")
     public void actorCreationAdvice(ActorRef ref) {
