@@ -56,7 +56,6 @@ $(document).ready(function(){
         document.getElementById("log").innerHTML = JSON.stringify(msg);
 
         var path = msg.actorpath.replace(/akka:\/\//, msg.host + "/").split("/");
-        console.log("path " + path)
         if (msg.event.type == "started") {
             insert(path, root, msg.actorpath, 0);
         } if (msg.event.type == "terminated") {
@@ -114,7 +113,6 @@ $(document).ready(function(){
             html: true,
             title: function() {
                 var d = this.__data__;
-                console.log(d);
                 return 'Path: ' + d.name + '';
             }
         });
@@ -133,13 +131,16 @@ $(document).ready(function(){
 
     function color(d) {
         var colors = ["#1d4d70", "#3182bd", "#c6dbef", "#ffffff"];
-        //console.log("level " + d.level);
         return d.name == "user" ? "#ff0000" : colors[d.level % colors.length];
     }
 
-// Toggle children on click.
+    //used to pin/unpin nodes. This allows to fix part of the tree from moving
     function click(d) {
-        //document.getElementById("actorname").innerHTML = d.actorpath;
+        if(!d.fixed){
+            d.fixed = true
+        } else {
+            d.fixed = false
+        }
     }
 
 // Returns a list of all nodes under the root.
