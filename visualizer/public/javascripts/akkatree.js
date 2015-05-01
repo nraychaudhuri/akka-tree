@@ -64,7 +64,6 @@ $(document).ready(function(){
         update();
     }
 
-
     function update() {
         var nodes = flatten(root),
             links = d3.layout.tree().links(nodes);

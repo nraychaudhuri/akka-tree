@@ -1,6 +1,6 @@
 package controllers
 
-import java.net.{DatagramPacket, DatagramSocket}
+import java.net.{InetAddress, MulticastSocket, DatagramPacket, DatagramSocket}
 
 import scala.concurrent.Future
 
@@ -12,7 +12,10 @@ import play.api.mvc._
 object Application extends Controller {
 
   //TODO: Enable Multicasting so we can have many clients
-  val serverSocket = new DatagramSocket(9003)
+  val serverSocket = new MulticastSocket(9003)
+  val group = InetAddress.getByName("228.5.6.7");
+  serverSocket.joinGroup(group);
+
   def index = Action {
     Ok(views.html.index())
   }

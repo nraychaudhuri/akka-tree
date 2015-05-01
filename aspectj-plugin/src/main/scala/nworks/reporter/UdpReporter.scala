@@ -9,7 +9,8 @@ import play.api.libs.json.{Json, JsValue}
 object UdpReporter {
 
 
-  val remote: InetSocketAddress = new InetSocketAddress(InetAddress.getLocalHost, 9003)
+  val group = InetAddress.getByName("228.5.6.7");
+  val remote: InetSocketAddress = new InetSocketAddress(group, 9003)
 
   val clientSocket = new DatagramSocket()
 

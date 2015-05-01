@@ -6,3 +6,7 @@ libraryDependencies ++= Seq(
   cache,
   ws
 )
+
+fork := true
+
+javaOptions += "-Djava.net.preferIPv4Stack=true"
