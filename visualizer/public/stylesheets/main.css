@@ -13,7 +13,7 @@ line.link {
     stroke-width: 1.5px;
 }
 
-div#container {
+#container {
     float:left;
     width:75%;
     overflow:hidden;
@@ -22,7 +22,7 @@ div#container {
     border: 1px solid #1d4d70;
 }
 
-div#info {
+#filters {
     float:left;
     width:20%;
     overflow:hidden;
