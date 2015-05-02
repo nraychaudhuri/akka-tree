@@ -24,7 +24,26 @@
         <div id="filters">
             <img width="150px" src="@routes.Assets.at("images/icon.png")"/>
             <hr/>
-            <span id="message"></span>
+            <form class="filter-form" method="post" action="@routes.Application.applyFilter">
+                <ul>
+                    <li>
+                        <h2>Filter Options</h2>
+                    </li>
+                    <li>
+                        <label for="hostnames">Hostname</label>
+                        <select id="hostnames" name="hostnames">
+                            <option value="">Please select</option>
+                        </select>
+                    </li>
+                    <li>
+                        <label for="filter">Filter</label>
+                        <input type="text" name="name" placeholder="/user/foo/*" />
+                    </li>
+                    <li>
+                        <button class="submit" type="submit">Apply Filter</button>
+                    </li>
+                </ul>
+            </form>
         </div>
     </body>
 </html>

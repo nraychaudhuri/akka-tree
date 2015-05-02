@@ -29,23 +29,22 @@ object UdpReporter {
 
 sealed trait AkkaTreeEvent {
   def ref: ActorRef
+  def event: String
 
-  def json: JsValue
+  val hostname = sys.props.getOrElse("akkatree.hostname", InetAddress.getLocalHost.getHostName)
+
+  def json: JsValue = Json.obj(
+    "actorpath" -> ref.path.toString,
+    "host" -> hostname,
+    "event" -> Json.obj("type" -> event)
+  )
 }
 
 case class ActorCreated(ref: ActorRef) extends AkkaTreeEvent {
-  override def json: JsValue = Json.obj(
-    "actorpath" -> ref.path.toString,
-    "host" -> "localhost",
-    "event" -> Json.obj("type" -> "started")
-  )
+  val event = "started"
 }
 
 case class ActorRemoved(ref: ActorRef) extends AkkaTreeEvent {
-  override def json: JsValue = Json.obj(
-    "actorpath" -> ref.path.toString,
-    "host" -> "localhost",
-    "event" -> Json.obj("type" -> "terminated")
-  )
+  val event = "terminated"
 }
 

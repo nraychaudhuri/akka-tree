@@ -11,7 +11,6 @@ import play.api.mvc._
 
 object Application extends Controller {
 
-  //TODO: Enable Multicasting so we can have many clients
   val serverSocket = new MulticastSocket(9003)
   val group = InetAddress.getByName("228.5.6.7");
   serverSocket.joinGroup(group);
@@ -20,12 +19,16 @@ object Application extends Controller {
     Ok(views.html.index())
   }
 
+  def applyFilter = Action {
+    Redirect(routes.Application.index())
+  }
+
   def events = Action {
     Ok.chunked(userEvents().through(EventSource())).as(MimeTypes.EVENT_STREAM)
   }
 
   private def userEvents(): Enumerator[String] = {
-    import scala.concurrent.ExecutionContext.Implicits._
+    import play.api.libs.concurrent.Execution.Implicits.defaultContext
     //TODO: Use akka.io for udp. This is blocking right now
     Enumerator.repeatM(
       Future {
