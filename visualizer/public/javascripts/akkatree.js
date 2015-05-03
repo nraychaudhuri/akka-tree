@@ -80,11 +80,11 @@ $(document).ready(function(){
             .start();
 
         // Update the links…
-        link = vis.selectAll("line.link")
-            .data(links, function(d) { return d.target.id; });
+        link = vis.selectAll(".link")
+                 .data(links, function(d) { return d.target.id; });
 
         // Enter any new links.
-        link.enter().insert("svg:line", ".node")
+        link.enter().insert("line", ".node")
             .attr("class", "link")
             .attr("x1", function(d) { return d.source.x; })
             .attr("y1", function(d) { return d.source.y; })
@@ -95,32 +95,26 @@ $(document).ready(function(){
         link.exit().remove();
 
         // Update the nodes…
-        node = vis.selectAll("circle.node")
+        node = vis.selectAll(".node")
             .data(nodes, function(d) { return d.id; })
-            .style("fill", color);
-
-        // Enter any new nodes.
-        node.enter().append("svg:circle")
-            .attr("class", "node")
-            .attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; })
-            .attr("r", function(d) { return Math.sqrt((d.size + 1) * 100); })
-            .style("fill", color)
-            .on("click", click)
-            .call(force.drag);
 
         // Exit any old nodes.
         node.exit().remove();
 
-        $('svg circle').tipsy({
-            gravity: 'w',
-            html: true,
-            title: function() {
-                var d = this.__data__;
-                return 'Path: ' + d.name + '';
-            }
-        });
+        var nodeEnter = node.enter().append("g")
+            .attr("class", "node")
+            .on("click", click)
+            .call(force.drag);
 
+        nodeEnter.append("circle")
+            .attr("r", function(d) { return Math.sqrt((d.size + 1) * 100); });
+
+        nodeEnter.append("text")
+            .attr("dy", "-1.75em")
+            .text(function(d) { return d.name; });
+
+        node.select("circle")
+            .style("fill", color);
     }
 
     function tick() {
@@ -129,8 +123,7 @@ $(document).ready(function(){
             .attr("x2", function(d) { return d.target.x; })
             .attr("y2", function(d) { return d.target.y; });
 
-        node.attr("cx", function(d) { return d.x; })
-            .attr("cy", function(d) { return d.y; });
+        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
     }
 
     function color(d) {
@@ -140,11 +133,8 @@ $(document).ready(function(){
 
     //used to pin/unpin nodes. This allows to fix part of the tree from moving
     function click(d) {
-        if(!d.fixed){
-            d.fixed = true
-        } else {
-            d.fixed = false
-        }
+        if (d3.event.defaultPrevented) return; // ignore drag
+        d.fixed = !d.fixed
     }
 
 // Returns a list of all nodes under the root.
