@@ -8,20 +8,32 @@ $(document).ready(function(){
         }
     }
 
+    function children(node) {
+        if(node.isNodeCollapsed)
+            return node.collapsed_children;
+        else
+            return node.children;
+    }
+
     function insert(path, parent, actorpath, level) {
         if (path.length == 0) { return; }
         else {
             var elem = path.shift();
             var node;
-            if (parent.children) {
-                node = findElementInArray(parent.children, elem);
+            if (children(parent)) {
+                node = findElementInArray(children(parent), elem);
             }
             if (!node) {
-                node = {"name" : elem, "size": 1, "id": id++, "level" : level};
-                if (!parent.children) {
-                    parent.children = [];
-                }
-                parent.children.push(node);
+                node = {
+                    "name" : elem,
+                    "size": 1,
+                    "id": id++,
+                    "level" : level,
+                    "children" : [],
+                    "collapsed_children" : [],
+                    "isNodeCollapsed" : false
+                };
+                children(parent).push(node);
             }
             if (path.length == 0) {
                 node.actorpath = actorpath;
@@ -36,17 +48,17 @@ $(document).ready(function(){
 
         while (path.length > 1) {
             var elem = path.shift();
-            if (parent_ && parent_.children) {
-                parent_ = findElementInArray(parent_.children, elem);
+            if (parent_ && children(parent_)) {
+                parent_ = findElementInArray(children(parent_), elem);
             }
         }
 
-        if (parent_ && parent_.children) {
-            var elem = findElementInArray(parent_.children, path[0]);
+        if (parent_ && children(parent_)) {
+            var elem = findElementInArray(children(parent_), path[0]);
             if (elem) {
-                var index = parent_.children.indexOf(elem);
+                var index = children(parent_).indexOf(elem);
                 if (index > -1) {
-                    parent_.children.splice(index, 1);
+                    children(parent_).splice(index, 1);
                 }
             }
         }
@@ -56,8 +68,10 @@ $(document).ready(function(){
         showDialogInfo(msg)
         var path = msg.actorpath.replace(/akka:\/\//, msg.host + "/").split("/");
         if (msg.event.type == "started") {
-            insert(path, root, msg.actorpath, 0);
-        } if (msg.event.type == "terminated") {
+            insert(path, root, msg.actorpath, 0, root.isNodeCollapsed);
+        }
+
+        if (msg.event.type == "terminated") {
             remove(path, root);
         }
         update();
@@ -107,7 +121,8 @@ $(document).ready(function(){
             .call(force.drag);
 
         nodeEnter.append("circle")
-            .attr("r", function(d) { return Math.sqrt((d.size + 1) * 100); });
+            .attr("r", function(d) { return Math.sqrt((d.size + 1) * 100); })
+            .on('contextmenu', d3.contextMenu(menu));
 
         nodeEnter.append("text")
             .attr("dy", "-1.75em")
@@ -151,8 +166,36 @@ $(document).ready(function(){
         return nodes;
     }
 
+
+    function collapse(d) {
+        if(d.isNodeCollapsed) { return;} //already collapsed
+
+        d.isNodeCollapsed = true;
+        d.collapsed_children = d.children;
+        d.children = [];
+        update()
+    }
+
+    function expand(d) {
+        if(!d.isNodeCollapsed) { return; }
+
+        d.isNodeCollapsed = false;
+        d.children = d.collapsed_children;
+        d.collapsed_children = [];
+        update()
+    }
+
     function createRoot(w, h) {
-        var root = {"name": "akka-tree", "size": 0, "id" : 0, "children" : [], "actorpath" : "Root" };
+        var root = {
+            "name": "akka-tree",
+            "size": 0,
+            "id" : 0,
+            "children" : [],
+            "collapsed_children" : [],
+            "isNodeCollapsed" : false,
+            "actorpath" : "Root"
+        };
+
         root.fixed = true;
         root.x = w / 2;
         root.y = h / 2;
@@ -161,6 +204,23 @@ $(document).ready(function(){
 
     var w = 0.8 * window.innerWidth;
     var h = window.innerHeight;
+
+    var menu = [
+        {
+            title: 'Collapse',
+            action: function(elm, d, i) {
+                console.log("collapse " + d.name);
+                collapse(d)
+            }
+        },
+        {
+            title: 'Expand',
+            action: function(elm, d, i) {
+                console.log("Expand " + d.name);
+                expand(d)
+            }
+        }
+    ]
 
     var node, link;
     var id = 1;
@@ -178,7 +238,7 @@ $(document).ready(function(){
 
     var eventSource = new EventSource("/events");
     eventSource.onmessage = function(event) {
-        console.log("data: ", event.data)
+        //console.log("data: ", event.data)
         akkatree_onmessage(JSON.parse(event.data))
     };
 

@@ -6,17 +6,23 @@
         <title>Akka Tree Visualization</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/icon.png")">
+        <link rel="stylesheet" href="@routes.Assets.at("stylesheets/d3.contextmenu.css")"/>
+
         <script src="@routes.Assets.at("javascripts/d3.v3.min.js")" charset="utf-8"></script>
         <script type="text/javascript" src="@routes.Assets.at("javascripts/jquery-1.6.2.min.js")"></script>
         <script src="@routes.Assets.at("javascripts/akkatree.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/d3.contextmenu.js")" type="text/javascript"></script>
     </head>
     <body>
         <div id="container">
             <div id="canvas"></div>
             <div id="dialog">
-                <span id="dialog-path"></span><br/>
-                <span id="dialog-host"></span><br/>
-                <span id="dialog-event"></span>
+                <details>
+                    <summary>Events</summary>
+                    <span id="dialog-path"></span><br/>
+                    <span id="dialog-host"></span><br/>
+                    <span id="dialog-event"></span>
+                </details>
             </div>
         </div>
         <div id="filters">
