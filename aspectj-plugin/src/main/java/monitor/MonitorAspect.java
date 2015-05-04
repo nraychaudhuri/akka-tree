@@ -18,8 +18,7 @@ public class MonitorAspect {
     @AfterReturning(pointcut = "execution (* akka.actor.ActorRefFactory.actorOf(..))",
             returning = "ref", argNames = "ref")
     public void actorCreationAdvice(ActorRef ref) {
-        if(!ignore(ref))
-            UdpReporter.send(new ActorCreated(ref));
+        UdpReporter.send(new ActorCreated(ref));
     }
 
     @Pointcut(value = "execution(* akka.actor.ActorCell.stop()) && this(cell)", argNames = "cell")
@@ -27,13 +26,7 @@ public class MonitorAspect {
 
     @Before(value = "actorStop(cell)")
     public void beforeStop(ActorCell cell) {
-        if(!ignore(cell.actor().self()))
-            UdpReporter.send(new ActorRemoved(cell.actor().self()));
+        UdpReporter.send(new ActorRemoved(cell.self()));
     }
-
-    private Boolean ignore(ActorRef ref) {
-        return ref.path().toString().contains("actor-tree");
-    }
-
 
 }

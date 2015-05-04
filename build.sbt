@@ -1,3 +1,5 @@
+import com.typesafe.sbt.SbtAspectj._
+
 name := "akka-tree"
 
 val commonSettings = Seq(
@@ -10,17 +12,27 @@ val commonSettings = Seq(
   )
 )
 
-lazy val akkaTreeAspectJ = project.in(file("aspectj-plugin"))
+val aspectjSettingsX = aspectjSettings ++ Seq(
+  fork in run := true,
+  javaOptions in run <++= AspectjKeys.weaverOptions in Aspectj
+)
+
+lazy val aspectjPlugin = project.in(file("aspectj-plugin"))
                                 .settings(commonSettings:_*)
 
-lazy val akkaTreeClient = project.in(file("example"))
+lazy val simpleClient = project.in(file("example"))
                                 .settings(commonSettings:_*)
-                                .dependsOn(akkaTreeAspectJ)
+                                .settings(aspectjSettingsX:_*)
+                                .dependsOn(aspectjPlugin)
+
+lazy val clusterClient = project.in(file("cluster-example"))
+                                .settings(commonSettings:_*)
+                                .settings(aspectjSettingsX:_*)
+                                .dependsOn(aspectjPlugin)
 
 
-lazy val akkaTreeVisualizer = project.in(file("visualizer"))
+lazy val visualizer = project.in(file("visualizer"))
                                 .settings(commonSettings:_*).enablePlugins(PlayScala)
 
 
-
-lazy val root = project.in(file(".")).aggregate(akkaTreeAspectJ, akkaTreeClient, akkaTreeVisualizer)
+lazy val root = project.in(file(".")).aggregate(aspectjPlugin, simpleClient, clusterClient, visualizer)

@@ -31,7 +31,7 @@ sealed trait AkkaTreeEvent {
   def ref: ActorRef
   def event: String
 
-  val hostname = sys.props.getOrElse("akkatree.hostname", InetAddress.getLocalHost.getHostName)
+  val hostname = System.getProperty("akkatree.hostname", InetAddress.getLocalHost.getHostName)
 
   def json: JsValue = Json.obj(
     "actorpath" -> ref.path.toString,
