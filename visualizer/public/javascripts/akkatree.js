@@ -8,6 +8,7 @@ $(document).ready(function(){
         }
     }
 
+    //uses isNodeCollapsed property to return appropriate array
     function children(node) {
         if(node.isNodeCollapsed)
             return node.collapsed_children;
@@ -66,13 +67,19 @@ $(document).ready(function(){
 
     function akkatree_onmessage(msg) {
         showDialogInfo(msg)
-        var path = msg.actorpath.replace(/akka:\/\//, msg.host + "/").split("/");
+        //replacing akka protocol and actor system name with hostname
+        var path = msg.actorpath.replace(/akka:\/\/[^\/]+/, msg.host).split("/");
         if (msg.event.type == "started") {
-            insert(path, root, msg.actorpath, 0, root.isNodeCollapsed);
+            insert(path, root, msg.actorpath, 0);
         }
 
         if (msg.event.type == "terminated") {
-            remove(path, root);
+            if(path[path.length -1] == "user") { //user actor is terminated, kill the host node
+                path.pop() //removes the last element to get to the host path
+                remove(path, root);
+            } else {
+                remove(path, root);
+            }
         }
         update();
     }
@@ -211,7 +218,7 @@ $(document).ready(function(){
         {
             title: 'Collapse',
             action: function(elm, d, i) {
-                console.log("collapse " + d.name);
+                console.log("collapse3 " + d.actorpath);
                 collapse(d)
             }
         },
