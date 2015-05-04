@@ -78,9 +78,9 @@ $(document).ready(function(){
     }
 
     function showDialogInfo(msg) {
-        $("#dialog-path").html("<h3>Path</h3>" + msg.actorpath);
-        $("#dialog-host").html("<h3>Host</h3>" + msg.host);
-        $("#dialog-event").html("<h3>Event</h3>" + msg.event.type);
+        $("#dialog-path").html("<h4>Path</h4>" + msg.actorpath);
+        $("#dialog-host").html("<h4>Host</h4>" + msg.host);
+        $("#dialog-event").html("<h4>Event</h4>" + msg.event.type);
     }
 
     function update() {
@@ -202,7 +202,7 @@ $(document).ready(function(){
         return root
     }
 
-    var w = 0.8 * window.innerWidth;
+    var w = window.innerWidth;
     var h = window.innerHeight;
 
     var menu = [
