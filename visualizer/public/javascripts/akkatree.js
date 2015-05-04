@@ -142,8 +142,10 @@ $(document).ready(function(){
     }
 
     function color(d) {
+        if(d.isNodeCollapsed) { return "#ff0000"; }
+
         var colors = ["#1d4d70", "#3182bd", "#c6dbef", "#ffffff"];
-        return d.name == "user" ? "#ff0000" : colors[d.level % colors.length];
+        return colors[d.level % colors.length];
     }
 
     //used to pin/unpin nodes. This allows to fix part of the tree from moving
