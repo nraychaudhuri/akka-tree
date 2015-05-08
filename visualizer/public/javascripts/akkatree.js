@@ -15,8 +15,6 @@ $(document).ready(function(){
         }
     ]
 
-    //TODO: Remove this ugly id mutable state. Need a monotonic incrementing counter
-    var id = 1;
     var root = createRoot(window.innerWidth, window.innerHeight)
     var force = createForceLayout(window.innerWidth, window.innerHeight)
     var vis = graphArea(window.innerWidth, window.innerHeight)
@@ -56,10 +54,11 @@ $(document).ready(function(){
             node = findElementInArray(children(parent), elem);
         }
         if (!node) {
+            var id = parent.id + "/" + elem
             node = {
                 "name" : elem,
                 "size": 1,
-                "id": id++,
+                "id": id,
                 "level" : level,
                 "children" : [],
                 "collapsed_children" : [],
@@ -227,7 +226,7 @@ $(document).ready(function(){
         var root = {
             "name": "akka-tree",
             "size": 0,
-            "id" : 0,
+            "id" : "akka-tree",
             "children" : [],
             "collapsed_children" : [],
             "isNodeCollapsed" : false
@@ -235,7 +234,7 @@ $(document).ready(function(){
 
         root.fixed = true;
         root.x = w / 2;
-        root.y = h / 2;
+        root.y = h - 15;
         return root
     }
 
