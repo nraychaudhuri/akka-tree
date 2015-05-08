@@ -1,4 +1,5 @@
 import com.typesafe.sbt.SbtAspectj._
+import sbt.Project.projectToRef
 
 name := "akka-tree"
 
@@ -17,6 +18,9 @@ val aspectjSettingsX = aspectjSettings ++ Seq(
   javaOptions in run <++= AspectjKeys.weaverOptions in Aspectj
 )
 
+
+lazy val jsProjects = Seq(visualizerClient)
+
 lazy val aspectjPlugin = project.in(file("aspectj-plugin"))
                                 .settings(commonSettings:_*)
 
@@ -32,7 +36,16 @@ lazy val clusterClient = project.in(file("cluster-example"))
 
 
 lazy val visualizer = project.in(file("visualizer"))
-                                .settings(commonSettings:_*).enablePlugins(PlayScala)
+                                .settings(commonSettings:_*)
+                                .settings(
+                                    scalaJSProjects := jsProjects,
+                                    pipelineStages := Seq(scalaJSProd))
+                                .enablePlugins(PlayScala)
+                                .aggregate(jsProjects.map(projectToRef): _*)
+
+lazy val visualizerClient = project.in(file("visualizer-client"))
+                                .settings(commonSettings:_*)
+                                .enablePlugins(ScalaJSPlugin, ScalaJSPlay)
 
 
-lazy val root = project.in(file(".")).aggregate(aspectjPlugin, simpleClient, clusterClient, visualizer)
+lazy val root = project.in(file(".")).aggregate(aspectjPlugin, simpleClient, clusterClient, visualizer, visualizerClient)

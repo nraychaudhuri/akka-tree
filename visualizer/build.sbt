@@ -4,9 +4,6 @@ libraryDependencies ++= Seq(
   jdbc,
   anorm,
   cache,
-  ws
+  ws,
+  "com.vmunier" %% "play-scalajs-scripts" % "0.2.1"
 )
-
-fork := true
-
-javaOptions += "-Djava.net.preferIPv4Stack=true"

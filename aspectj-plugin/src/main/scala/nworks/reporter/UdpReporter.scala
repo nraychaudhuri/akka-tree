@@ -36,7 +36,7 @@ sealed trait AkkaTreeEvent {
   def json: JsValue = Json.obj(
     "actorpath" -> ref.path.toString,
     "host" -> hostname,
-    "event" -> Json.obj("type" -> event)
+    "event" -> event
   )
 }
 

@@ -69,11 +69,11 @@ $(document).ready(function(){
         showDialogInfo(msg)
         //replacing akka protocol and actor system name with hostname
         var path = msg.actorpath.replace(/akka:\/\/[^\/]+/, msg.host).split("/");
-        if (msg.event.type == "started") {
+        if (msg.event == "started") {
             insert(path, root, msg.actorpath, 0);
         }
 
-        if (msg.event.type == "terminated") {
+        if (msg.event == "terminated") {
             if(path[path.length -1] == "user") { //user actor is terminated, kill the host node
                 path.pop() //removes the last element to get to the host path
                 remove(path, root);
@@ -87,7 +87,7 @@ $(document).ready(function(){
     function showDialogInfo(msg) {
         $("#dialog-path").html("<h4>Path</h4>" + msg.actorpath);
         $("#dialog-host").html("<h4>Host</h4>" + msg.host);
-        $("#dialog-event").html("<h4>Event</h4>" + msg.event.type);
+        $("#dialog-event").html("<h4>Event</h4>" + msg.event);
     }
 
     function update() {
