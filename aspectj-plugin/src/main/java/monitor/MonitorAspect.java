@@ -10,7 +10,6 @@ import org.aspectj.lang.JoinPoint;
 
 import akka.actor.ActorCell;
 
-import java.util.Optional;
 
 @Aspect
 public class MonitorAspect {
