@@ -29,10 +29,10 @@ object Application extends Controller {
 
   private def userEvents(): Enumerator[String] = {
     import play.api.libs.concurrent.Execution.Implicits.defaultContext
+    val receiveData = new Array[Byte](2048);
     //TODO: Use akka.io for udp. This is blocking right now
     Enumerator.repeatM(
-      Future {
-        val receiveData = new Array[Byte](2048);
+    Future {
         val receivePacket = new DatagramPacket(receiveData, receiveData.length);
         serverSocket.receive(receivePacket);
         new String(receivePacket.getData, 0, receivePacket.getLength)

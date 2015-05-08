@@ -1,4 +1,36 @@
 $(document).ready(function(){
+
+    var menu = [
+        {
+            title: 'Collapse',
+            action: function(elm, d, i) {
+                collapse(d)
+            }
+        },
+        {
+            title: 'Expand',
+            action: function(elm, d, i) {
+                expand(d)
+            }
+        }
+    ]
+
+    //TODO: Remove this ugly id mutable state. Need a monotonic incrementing counter
+    var id = 1;
+    var root = createRoot(window.innerWidth, window.innerHeight)
+    var force = createForceLayout(window.innerWidth, window.innerHeight)
+    var vis = graphArea(window.innerWidth, window.innerHeight)
+
+    var eventSource = new EventSource("/events");
+    eventSource.onmessage = function(event) {
+        akkatree_onmessage(JSON.parse(event.data))
+    };
+    eventSource.onerror = function(alert) {
+        console.log("alert: ", alert)
+    }
+
+
+
     function findElementInArray(array, elem) {
         var result = $.grep(array, function(e) { return e.name == elem; })
         if(result.length == 1) {
@@ -16,31 +48,26 @@ $(document).ready(function(){
             return node.children;
     }
 
-    function insert(path, parent, actorpath, level) {
+    function insert(path, parent, level) {
         if (path.length == 0) { return; }
-        else {
-            var elem = path.shift();
-            var node;
-            if (children(parent)) {
-                node = findElementInArray(children(parent), elem);
-            }
-            if (!node) {
-                node = {
-                    "name" : elem,
-                    "size": 1,
-                    "id": id++,
-                    "level" : level,
-                    "children" : [],
-                    "collapsed_children" : [],
-                    "isNodeCollapsed" : false
-                };
-                children(parent).push(node);
-            }
-            if (path.length == 0) {
-                node.actorpath = actorpath;
-            }
-            insert(path, node, actorpath, level + 1);
+        var elem = path.shift();
+        var node;
+        if (children(parent)) {
+            node = findElementInArray(children(parent), elem);
         }
+        if (!node) {
+            node = {
+                "name" : elem,
+                "size": 1,
+                "id": id++,
+                "level" : level,
+                "children" : [],
+                "collapsed_children" : [],
+                "isNodeCollapsed" : false
+            };
+            children(parent).push(node);
+        }
+        insert(path, node, level + 1);
     }
 
     function remove(path, parent){
@@ -70,7 +97,7 @@ $(document).ready(function(){
         //replacing akka protocol and actor system name with hostname
         var path = msg.actorpath.replace(/akka:\/\/[^\/]+/, msg.host).split("/");
         if (msg.event.type == "started") {
-            insert(path, root, msg.actorpath, 0);
+            insert(path, root, 0);
         }
 
         if (msg.event.type == "terminated") {
@@ -101,7 +128,7 @@ $(document).ready(function(){
             .start();
 
         // Update the links…
-        link = vis.selectAll(".link")
+        var link = vis.selectAll(".link")
                  .data(links, function(d) { return d.target.id; });
 
         // Enter any new links.
@@ -116,7 +143,7 @@ $(document).ready(function(){
         link.exit().remove();
 
         // Update the nodes…
-        node = vis.selectAll(".node")
+        var node = vis.selectAll(".node")
             .data(nodes, function(d) { return d.id; })
 
         // Exit any old nodes.
@@ -137,15 +164,19 @@ $(document).ready(function(){
 
         node.select("circle")
             .style("fill", color);
+
+        force.on("tick", tick(link, node))
+
     }
 
-    function tick() {
-        link.attr("x1", function(d) { return d.source.x; })
-            .attr("y1", function(d) { return d.source.y; })
-            .attr("x2", function(d) { return d.target.x; })
-            .attr("y2", function(d) { return d.target.y; });
-
-        node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+    function tick(link, node) {
+        return function() {
+            link.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+            node.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+        }
     }
 
     function color(d) {
@@ -163,7 +194,7 @@ $(document).ready(function(){
 
 // Returns a list of all nodes under the root.
     function flatten(root) {
-        var nodes = [], i = 0;
+        var nodes = [];
 
         function recurse(node) {
             if (node.children) node.children.reduce(function(p, v) { return p + recurse(v); }, 0);
@@ -175,10 +206,8 @@ $(document).ready(function(){
         return nodes;
     }
 
-
     function collapse(d) {
         if(d.isNodeCollapsed) { return;} //already collapsed
-
         d.isNodeCollapsed = true;
         d.collapsed_children = d.children;
         d.children = [];
@@ -201,8 +230,7 @@ $(document).ready(function(){
             "id" : 0,
             "children" : [],
             "collapsed_children" : [],
-            "isNodeCollapsed" : false,
-            "actorpath" : "Root"
+            "isNodeCollapsed" : false
         };
 
         root.fixed = true;
@@ -211,47 +239,16 @@ $(document).ready(function(){
         return root
     }
 
-    var w = window.innerWidth;
-    var h = window.innerHeight;
+    function createForceLayout(w, h) {
+       return d3.layout.force()
+            .charge(function(d) { return -500; })
+            .linkDistance(function(d) { return 50; })
+            .size([w - 100, h - 100]);
+    }
 
-    var menu = [
-        {
-            title: 'Collapse',
-            action: function(elm, d, i) {
-                console.log("collapse3 " + d.actorpath);
-                collapse(d)
-            }
-        },
-        {
-            title: 'Expand',
-            action: function(elm, d, i) {
-                console.log("Expand " + d.name);
-                expand(d)
-            }
-        }
-    ]
-
-    var node, link;
-    var id = 1;
-    var root = createRoot(w, h)
-
-    var force = d3.layout.force()
-        .on("tick", tick)
-        .charge(function(d) { return -500; })
-        .linkDistance(function(d) { return 50; })
-        .size([w - 100, h - 100]);
-
-    var vis = d3.select("#canvas").append("svg:svg")
-        .attr("width", w)
-        .attr("height", h);
-
-    var eventSource = new EventSource("/events");
-    eventSource.onmessage = function(event) {
-        //console.log("data: ", event.data)
-        akkatree_onmessage(JSON.parse(event.data))
-    };
-
-    eventSource.onerror = function(alert) {
-        console.log("alert: ", alert)
+    function graphArea(w, h) {
+        return d3.select("#canvas").append("svg:svg")
+            .attr("width", w)
+            .attr("height", h);
     }
 })

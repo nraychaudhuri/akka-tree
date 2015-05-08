@@ -6,6 +6,7 @@ val commonSettings = Seq(
   organization := "nworks",
   version := "0.3",
   scalaVersion := "2.11.5",
+  scalacOptions += "-target:jvm-1.7",
   resolvers ++= Seq(
     "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases/"

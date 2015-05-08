@@ -10,3 +10,4 @@ libraryDependencies ++= Seq(
 javacOptions += "-g:vars"
 
 publishArtifact in (Compile, packageDoc) := false
+
