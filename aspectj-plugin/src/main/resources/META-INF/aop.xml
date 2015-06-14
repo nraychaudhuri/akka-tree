@@ -3,11 +3,13 @@
 
     <aspects>
         <aspect name="monitor.MonitorAspect"/>
+        <aspect name="akka.monitor.MessageAspect"/>
     </aspects>
 
     <weaver options="-verbose -showWeaveInfo -XnoInline">
         <include within="akka.actor.*"/>
         <include within="monitor.*"/>
+        <include within="akka.monitor.*"/>
     </weaver>
 
 </aspectj>

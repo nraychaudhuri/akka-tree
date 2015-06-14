@@ -48,3 +48,14 @@ case class ActorRemoved(ref: ActorRef) extends AkkaTreeEvent {
   val event = "terminated"
 }
 
+case class MessageSend(from: ActorRef, to: ActorRef) extends AkkaTreeEvent {
+  def ref = from
+  val event = "message"
+
+  override def json: JsValue = Json.obj(
+    "from" -> from.path.toString,
+    "to" -> to.path.toString,
+    "event" -> Json.obj("type" -> event)
+  )
+}
+

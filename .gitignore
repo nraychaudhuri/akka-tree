@@ -1,3 +1,4 @@
+*.sublime-*
 logs
 project/project
 project/target

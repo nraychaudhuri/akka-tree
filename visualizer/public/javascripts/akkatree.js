@@ -92,6 +92,9 @@ $(document).ready(function(){
     }
 
     function akkatree_onmessage(msg) {
+        if (msg.event.type === "message") {
+            return;
+        }
         showDialogInfo(msg)
         //replacing akka protocol and actor system name with hostname
         var path = msg.actorpath.replace(/akka:\/\/[^\/]+/, msg.host).split("/");
